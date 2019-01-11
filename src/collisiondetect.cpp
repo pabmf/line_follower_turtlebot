@@ -17,39 +17,42 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 *
 *@copyright Copyright 2017 Sudarshan Raghunathan
-*@file turtlebot.hpp
-*@author Sudarshan Raghunathan
-*@brief  Class definition for turtlebot
+*@file collisiondetect.cpp
+*@author Pablo Ferreiro
+*@brief  Class collisiondetect's function definitions
 */
-
-#pragma once
-#include <geometry_msgs/Twist.h>
-#include <vector>
+#include "collisiondetect.hpp"
+#include <cstdlib>
+#include <string>
 #include "ros/ros.h"
-#include "line_follower_turtlebot/pos.h"
+#include "ros/console.h"
 #include "line_follower_turtlebot/col.h"
 
-/**
-*@brief Class turtlebot subscribes to the directions published and publishes velocity commands
-*/
-class turtlebot {
- public:
-    int dir;  /// Direction message to read published directions
-    int col_flag;
-/**
-*@brief Callback used to subscribe to the direction message published by the Line detection node
-*@param msg is the custom message pos which publishes a direction int between 0 and 3
-*@return none
-*/
-    void dir_sub(line_follower_turtlebot::pos msg);
-    void col_sub(line_follower_turtlebot::col msg);
-/**
-*@brief Function to publish velocity commands based on direction
-*@param velocity is the twist 
-*@param pub is used to publish the velocity commands to the turtlebot
-*@param rate is the ros loop rate for publishing the commands
-*@return none
-*/
-    void vel_cmd(geometry_msgs::Twist &velocity,
-     ros::Publisher &pub, ros::Rate &rate);
-};
+
+void CollisionDetect::laserScanMsgCallBack(const sensor_msgs::LaserScan::ConstPtr &msg)
+{
+  
+  scan_data_[CENTER] = msg->ranges.at(msg->ranges.size()/2);
+  scan_data_[LEFT] = msg->ranges.at(0);
+  scan_data_[RIGHT] = msg->ranges.at(msg->ranges.size()-1);
+  
+  for(int angle = 0; angle < 3 ; angle++)
+  {
+    if (std::isnan(msg->ranges.at(angle)))
+    {
+      scan_data_[angle] = msg->range_max; 
+    }
+  }
+  
+  
+  ROS_DEBUG_THROTTLE(2, "Left laser distance: %f", scan_data_[LEFT]);
+  ROS_DEBUG_THROTTLE(2, "Center laser distance: %f", scan_data_[CENTER]);
+  ROS_DEBUG_THROTTLE(2, "Right laser distance: %f", scan_data_[RIGHT]);
+
+  if (scan_data_[CENTER] < check_forward_dist_ || scan_data_[LEFT] < check_side_dist_ || scan_data_[RIGHT] < check_side_dist_ )
+    collision_flag = 1;
+  else
+    collision_flag = 0;
+}
+
+

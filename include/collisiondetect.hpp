@@ -17,39 +17,42 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
 *
 *@copyright Copyright 2017 Sudarshan Raghunathan
-*@file turtlebot.hpp
-*@author Sudarshan Raghunathan
-*@brief  Class definition for turtlebot
+*@file collisiondetect.hpp
+*@author Pablo Ferreiro
+*@brief Header file for class collisiondetect
 */
 
 #pragma once
-#include <geometry_msgs/Twist.h>
 #include <vector>
 #include "ros/ros.h"
-#include "line_follower_turtlebot/pos.h"
 #include "line_follower_turtlebot/col.h"
+#include <sensor_msgs/LaserScan.h>
+
+
+#define DEG2RAD (M_PI / 180.0)
+#define RAD2DEG (180.0 / M_PI)
+#define CENTER 0
+#define RIGHT 1
+#define LEFT  2
 
 /**
-*@brief Class turtlebot subscribes to the directions published and publishes velocity commands
+*@brief Collision Detect class contains all the functions for laser scan processing and or image depth processing and collision avoidance
 */
-class turtlebot {
+class CollisionDetect{
  public:
-    int dir;  /// Direction message to read published directions
-    int col_flag;
+    bool collision_flag;  /// Collision Flag to be published 
+
 /**
-*@brief Callback used to subscribe to the direction message published by the Line detection node
-*@param msg is the custom message pos which publishes a direction int between 0 and 3
+*@brief Callback used to subscribe to the scan topic from the Turtlebot
+*@param msg is the laser scan message for ROS
 *@return none
 */
-    void dir_sub(line_follower_turtlebot::pos msg);
-    void col_sub(line_follower_turtlebot::col msg);
-/**
-*@brief Function to publish velocity commands based on direction
-*@param velocity is the twist 
-*@param pub is used to publish the velocity commands to the turtlebot
-*@param rate is the ros loop rate for publishing the commands
-*@return none
-*/
-    void vel_cmd(geometry_msgs::Twist &velocity,
-     ros::Publisher &pub, ros::Rate &rate);
+    void laserScanMsgCallBack(const sensor_msgs::LaserScan::ConstPtr &msg);
+
+
+ private:
+    double check_forward_dist_ = 0.8;
+    double check_side_dist_    = 0.8;
+    double scan_data_[3] = {0.0,0.0,0.0};
+
 };

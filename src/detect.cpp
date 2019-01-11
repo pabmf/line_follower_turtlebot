@@ -29,6 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ros/ros.h"
 #include "ros/console.h"
 #include "linedetect.hpp"
+#include "collisiondetect.hpp"
 #include "line_follower_turtlebot/pos.h"
 
 /**
@@ -39,25 +40,38 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 int main(int argc, char **argv) {
-    // Initializing node and object
+    // Initializing node and objects
     ros::init(argc, argv, "detection");
     ros::NodeHandle n;
     LineDetect det;
-    // Creating Publisher and subscriber
-    ros::Subscriber sub = n.subscribe("/camera/rgb/image_raw",
+    CollisionDetect coldet;
+
+    // Creating Subscribers
+    ros::Subscriber sub1 = n.subscribe("/camera/rgb/image_raw",
         1, &LineDetect::imageCallback, &det);
 
+    ros::Subscriber sub2 = n.subscribe("/scan",
+        1, &CollisionDetect::laserScanMsgCallBack, &coldet);
+    //Creating Publishers
     ros::Publisher dirPub = n.advertise<
     line_follower_turtlebot::pos>("direction", 1);
-        line_follower_turtlebot::pos msg;
+        line_follower_turtlebot::pos msg_dir;
+
+    ros::Publisher colPub = n.advertise<
+    line_follower_turtlebot::col>("collision_flag", 1);
+        line_follower_turtlebot::col msg_col;
 
     while (ros::ok()) {
         if (!det.img.empty()) {
             // Perform image processing
             det.img_filt = det.Gauss(det.img);
-            msg.direction = det.colorthresh(det.img_filt);
-            // Publish direction message
-            dirPub.publish(msg);
+            msg_dir.direction = det.colorthresh(det.img_filt);
+            // Imminent collision flag determination
+            msg_col.collision_flag = coldet.collision_flag;
+
+            // Publish direction and colision flag message
+            dirPub.publish(msg_dir);
+            colPub.publish(msg_col);
             }
         ros::spinOnce();
     }

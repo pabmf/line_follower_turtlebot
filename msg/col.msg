@@ -1,0 +1,1 @@
+int8 collision_flag

@@ -30,6 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ros/console.h"
 #include "turtlebot.hpp"
 #include "line_follower_turtlebot/pos.h"
+#include "line_follower_turtlebot/col.h"
 
 
 /**
@@ -45,8 +46,12 @@ int main(int argc, char **argv) {
     turtlebot bot;
     geometry_msgs::Twist velocity;
     // Creating subscriber and publisher
-    ros::Subscriber sub = n.subscribe("/direction",
+    ros::Subscriber sub1 = n.subscribe("/direction",
         1, &turtlebot::dir_sub, &bot);
+
+    ros::Subscriber sub2 = n.subscribe("/collision_flag",
+        1, &turtlebot::col_sub, &bot);
+
     ros::Publisher pub = n.advertise<geometry_msgs::Twist>
         ("/cmd_vel_mux/input/teleop", 10);
     ros::Rate rate(10);
