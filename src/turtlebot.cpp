@@ -41,33 +41,33 @@ void turtlebot::vel_cmd(geometry_msgs::Twist &velocity,
  ros::Publisher &pub, ros::Rate &rate) {
     // If direction is left
     if (turtlebot::dir == 0) {
-        velocity.linear.x = turtlebot::col_flag? 0 : 0.1;
-        velocity.angular.z = 0.15;
+        velocity.linear.x = turtlebot::proximity();
+        velocity.angular.z = 0.2;
         pub.publish(velocity);
         rate.sleep();
-        if(!turtlebot::col_flag)
+        if(turtlebot::col_flag != 0)
             ROS_INFO_STREAM("Turning Left");
         else
             ROS_INFO_STREAM("Risk of Collision: Stop");
     }
     // If direction is straight
     if (turtlebot::dir == 1) {
-        velocity.linear.x = turtlebot::col_flag? 0 : 0.15;
+        velocity.linear.x = turtlebot::proximity();;
         velocity.angular.z = 0;
         pub.publish(velocity);
         rate.sleep();
-        if(!turtlebot::col_flag)
-            ROS_INFO_STREAM("Straight");
+        if(turtlebot::col_flag != 0)
+            ROS_INFO("Straight at speed: %f", velocity.linear.x);
         else
             ROS_INFO_STREAM("Risk of Collision: Stop");
     }
     // If direction is right
     if (turtlebot::dir == 2) {
-        velocity.linear.x = turtlebot::col_flag? 0 : 0.1;
-        velocity.angular.z = -0.15;
+        velocity.linear.x = turtlebot::proximity();
+        velocity.angular.z = -0.2;
         pub.publish(velocity);
         rate.sleep();
-        if(!turtlebot::col_flag)
+        if(turtlebot::col_flag != 0)
             ROS_INFO_STREAM("Turning Right");
         else
             ROS_INFO_STREAM("Risk of Collision: Stop");
@@ -80,4 +80,18 @@ void turtlebot::vel_cmd(geometry_msgs::Twist &velocity,
         rate.sleep();
         ROS_INFO_STREAM("Searching");
     }
+}
+
+float turtlebot::proximity(void)
+{
+    if(turtlebot::col_flag == 0)
+        return STOP;
+    if(turtlebot::col_flag == 1)
+        return SLOW;
+    if(turtlebot::col_flag == 2)
+        return MEDIUM;
+    if(turtlebot::col_flag == 3)
+        return FAST;
+
+    return FAST;
 }

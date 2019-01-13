@@ -29,6 +29,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "line_follower_turtlebot/pos.h"
 #include "line_follower_turtlebot/col.h"
 
+#define FAST 0.4
+#define MEDIUM 0.25
+#define SLOW 0.1
+#define STOP 0
+
 /**
 *@brief Class turtlebot subscribes to the directions published and publishes velocity commands
 */
@@ -52,4 +57,8 @@ class turtlebot {
 */
     void vel_cmd(geometry_msgs::Twist &velocity,
      ros::Publisher &pub, ros::Rate &rate);
+
+
+ private:
+    float proximity(void);
 };

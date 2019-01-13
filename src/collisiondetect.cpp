@@ -31,28 +31,58 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 void CollisionDetect::laserScanMsgCallBack(const sensor_msgs::LaserScan::ConstPtr &msg)
 {
-  
+  //Find obstacle distance at 0, -30 and +30 degres
   scan_data_[CENTER] = msg->ranges.at(msg->ranges.size()/2);
-  scan_data_[LEFT] = msg->ranges.at(0);
-  scan_data_[RIGHT] = msg->ranges.at(msg->ranges.size()-1);
+  scan_data_[RIGHT] = msg->ranges.at(0);
+  scan_data_[LEFT] = msg->ranges.at(msg->ranges.size()-1);
   
+  //Replace NaN values for maximum distance range
   for(int angle = 0; angle < 3 ; angle++)
   {
-    if (std::isnan(msg->ranges.at(angle)))
+    if (std::isnan(scan_data_[angle]))
     {
       scan_data_[angle] = msg->range_max; 
     }
   }
   
-  
+  //Printing distance for debugging purposes
   ROS_DEBUG_THROTTLE(2, "Left laser distance: %f", scan_data_[LEFT]);
   ROS_DEBUG_THROTTLE(2, "Center laser distance: %f", scan_data_[CENTER]);
   ROS_DEBUG_THROTTLE(2, "Right laser distance: %f", scan_data_[RIGHT]);
 
-  if (scan_data_[CENTER] < check_forward_dist_ || scan_data_[LEFT] < check_side_dist_ || scan_data_[RIGHT] < check_side_dist_ )
-    collision_flag = 1;
+
+  //Finding closest obstacle distance
+  float smallest = scan_data_[0];
+  for(int angle = 1 ; angle < 3 ; angle++)
+  {
+    if (scan_data_[angle] < smallest)
+      smallest = scan_data_[angle];
+  }
+
+  ROS_DEBUG_THROTTLE(2, "Smallest distance: %f", smallest);
+
+  //Setting obstacle distance flag to be published
+  if(smallest <= STOP)
+      {distance_flag = 0;
+          ROS_DEBUG_THROTTLE(2, "Obstacle flag: STOP");}
   else
-    collision_flag = 0;
+    if(smallest <= NEAR)
+      {distance_flag = 1;
+          ROS_DEBUG_THROTTLE(2, "Obstacle flag: NEAR");}
+  else 
+    if(smallest <= MIDDLE)
+      {distance_flag = 2;
+          ROS_DEBUG_THROTTLE(2, "Obstacle flag: MIDDLE");}
+  else
+    if(smallest <= FAR)
+      {distance_flag = 3;
+          ROS_DEBUG_THROTTLE(2, "Obstacle flag: FAR");}
+  else
+      {distance_flag = 4;
+          ROS_DEBUG_THROTTLE(2, "Obstacle flag: VERY FAR");}
+
+  
+
 }
 
 

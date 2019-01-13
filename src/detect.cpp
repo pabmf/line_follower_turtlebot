@@ -31,6 +31,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "linedetect.hpp"
 #include "collisiondetect.hpp"
 #include "line_follower_turtlebot/pos.h"
+#include "line_follower_turtlebot/col.h"
 
 /**
  *@brief Main function that reads image from the turtlebot and provides direction to move using image processing
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
             det.img_filt = det.Gauss(det.img);
             msg_dir.direction = det.colorthresh(det.img_filt);
             // Imminent collision flag determination
-            msg_col.collision_flag = coldet.collision_flag;
+            msg_col.collision_flag = coldet.distance_flag;
 
             // Publish direction and colision flag message
             dirPub.publish(msg_dir);

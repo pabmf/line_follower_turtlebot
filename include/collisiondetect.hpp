@@ -31,16 +31,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #define DEG2RAD (M_PI / 180.0)
 #define RAD2DEG (180.0 / M_PI)
-#define CENTER 0
-#define RIGHT 1
+
+#define RIGHT 0
+#define CENTER 1
 #define LEFT  2
+
+#define FAR 5
+#define MIDDLE 3
+#define NEAR 1.5
+#define STOP 0.5
 
 /**
 *@brief Collision Detect class contains all the functions for laser scan processing and or image depth processing and collision avoidance
 */
 class CollisionDetect{
  public:
-    bool collision_flag;  /// Collision Flag to be published 
+   int distance_flag;  /// distance Flag to be published 
 
 /**
 *@brief Callback used to subscribe to the scan topic from the Turtlebot
@@ -51,8 +57,6 @@ class CollisionDetect{
 
 
  private:
-    double check_forward_dist_ = 0.8;
-    double check_side_dist_    = 0.8;
     double scan_data_[3] = {0.0,0.0,0.0};
 
 };
