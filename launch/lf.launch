@@ -4,7 +4,7 @@
 
 <include 
 file = "$(find turtlebot_gazebo)/launch/turtlebot_world.launch">
-<arg name = "world_file" value =  "$(find line_follower_turtlebot)/Maps/lfm1.world"/>
+<arg name = "world_file" value = "$(find line_follower_turtlebot)/Maps/lfm1.world"/>
 </include>
 
 <!-- Detection node -->

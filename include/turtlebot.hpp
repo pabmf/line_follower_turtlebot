@@ -29,8 +29,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "line_follower_turtlebot/pos.h"
 #include "line_follower_turtlebot/col.h"
 
-#define FAST 0.4
-#define MEDIUM 0.25
+#define FAST 0.3
+#define MEDIUM 0.2
 #define SLOW 0.1
 #define STOP 0
 

@@ -31,33 +31,17 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 void CollisionDetect::laserScanMsgCallBack(const sensor_msgs::LaserScan::ConstPtr &msg)
 {
-  //Find obstacle distance at 0, -30 and +30 degres
-  scan_data_[CENTER] = msg->ranges.at(msg->ranges.size()/2);
-  scan_data_[RIGHT] = msg->ranges.at(0);
-  scan_data_[LEFT] = msg->ranges.at(msg->ranges.size()-1);
-  
-  //Replace NaN values for maximum distance range
-  for(int angle = 0; angle < 3 ; angle++)
+
+  float smallest = msg->ranges[0];
+  for(int laser_point = 0 ; laser_point < msg->ranges.size(); laser_point ++)
   {
-    if (std::isnan(scan_data_[angle]))
+    if (!std::isnan(msg->ranges[laser_point]))
     {
-      scan_data_[angle] = msg->range_max; 
+      if (msg->ranges[laser_point] < smallest)
+      smallest = msg->ranges[laser_point]; 
     }
   }
-  
-  //Printing distance for debugging purposes
-  ROS_DEBUG_THROTTLE(2, "Left laser distance: %f", scan_data_[LEFT]);
-  ROS_DEBUG_THROTTLE(2, "Center laser distance: %f", scan_data_[CENTER]);
-  ROS_DEBUG_THROTTLE(2, "Right laser distance: %f", scan_data_[RIGHT]);
 
-
-  //Finding closest obstacle distance
-  float smallest = scan_data_[0];
-  for(int angle = 1 ; angle < 3 ; angle++)
-  {
-    if (scan_data_[angle] < smallest)
-      smallest = scan_data_[angle];
-  }
 
   ROS_DEBUG_THROTTLE(2, "Smallest distance: %f", smallest);
 
